@@ -68,6 +68,8 @@ public class TerrainGenerator : MonoBehaviour
         List<int> triangles = new List<int>();
         List<float> heights = new List<float>();
 
+        Noise noise = new Noise();
+
         IEnumerator<Triangle> triangleEnum = mesh.Triangles.GetEnumerator();
         
         for (int i = 0; i < mesh.Triangles.Count; i++)
@@ -83,7 +85,7 @@ public class TerrainGenerator : MonoBehaviour
 
             for (int j = 0; j < 3; j++)
             {
-                heights.Add((float)0);
+                heights.Add(noise.GenerateNoise()); ;
                 //heights.Add(Random.Range(0, 20));
             }
 
