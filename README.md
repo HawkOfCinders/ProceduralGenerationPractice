@@ -1,2 +1,2 @@
 # ProceduralGenerationPractice
- A self-study on procedurally generated meshes in unity
+ A self-study on procedurally generated meshes in Unity.
