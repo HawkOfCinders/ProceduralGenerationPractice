@@ -18,6 +18,8 @@ public class TerrainGenerator : MonoBehaviour
 
     [Header("Height curve")]
     public AnimationCurve heightCurve;
+    [Header("Seed")]
+    public float Seed;
 
     private Polygon polygon;
     private TriangleNet.Mesh mesh;
@@ -85,7 +87,7 @@ public class TerrainGenerator : MonoBehaviour
             Debug.Log("Going to noise generation loop");
             for (int j = 0; j < 3; j++)
             {
-                heights.Add(noise.GenerateNoise((float)currentTriangle.vertices[j].x, (float)currentTriangle.vertices[j].y)*200);
+                heights.Add(noise.GenerateNoise((float)currentTriangle.vertices[j].x, (float)currentTriangle.vertices[j].y, Seed)*200);
             }
             Debug.Log("Heights" + heights[0] + " " +heights[1] + " " +heights[2]);
             Vector3 v0 = new Vector3((float)currentTriangle.vertices[2].x, (float) heights[2], (float)currentTriangle.vertices[2].y);
