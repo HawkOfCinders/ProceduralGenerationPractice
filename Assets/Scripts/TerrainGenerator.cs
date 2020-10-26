@@ -60,7 +60,7 @@ public class TerrainGenerator : MonoBehaviour
     
     public void GenerateMesh()
     {
-
+        
         Debug.Log("Starting generate mesh function");
         List<Vector3> verticies = new List<Vector3>();
         List<Vector3> normals = new List<Vector3>();
@@ -82,17 +82,18 @@ public class TerrainGenerator : MonoBehaviour
 
             Triangle currentTriangle = triangleEnum.Current;
 
-
+            Debug.Log("Going to noise generation loop");
             for (int j = 0; j < 3; j++)
             {
-                heights.Add(noise.GenerateNoise()); ;
-                //heights.Add(Random.Range(0, 20));
+                heights.Add(noise.GenerateNoise((float)currentTriangle.vertices[j].x, (float)currentTriangle.vertices[j].y)*200);
             }
-
+            Debug.Log("Heights" + heights[0] + " " +heights[1] + " " +heights[2]);
             Vector3 v0 = new Vector3((float)currentTriangle.vertices[2].x, (float) heights[2], (float)currentTriangle.vertices[2].y);
             Vector3 v1 = new Vector3((float)currentTriangle.vertices[1].x, (float) heights[1], (float)currentTriangle.vertices[1].y);
             Vector3 v2 = new Vector3((float)currentTriangle.vertices[0].x, (float) heights[0], (float)currentTriangle.vertices[0].y);
 
+            heights.Clear();
+            
             triangles.Add(verticies.Count);
             triangles.Add(verticies.Count + 1);
             triangles.Add(verticies.Count + 2);

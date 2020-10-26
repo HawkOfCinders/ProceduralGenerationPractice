@@ -330,9 +330,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 876f0b1b19204d34ab18feed44a0cd1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sizeX: 472
-  sizeY: 417
-  pointDensity: 4
+  sizeX: 851
+  sizeY: 887
+  pointDensity: 3120
   heightCurve:
     serializedVersion: 2
     m_Curve:

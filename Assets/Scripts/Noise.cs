@@ -1,17 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
-public class Noise : MonoBehaviour
+public class Noise 
 {
-    public int GenerateNoise()
+    public float GenerateNoise(float x, float y)
     {
-        int height = 0;
+        float height = 0;
 
-        {
-        }
-        Mathf.PerlinNoise();
+        height = Mathf.PerlinNoise(x/150, y/150);
 
+        Debug.Log("Height before leaving function: " + height);
 
         return height;
     }
