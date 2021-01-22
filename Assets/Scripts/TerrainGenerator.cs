@@ -13,6 +13,9 @@ public class TerrainGenerator : MonoBehaviour
     [Range(1, 1000)] public int sizeX;
     [Range(1, 1000)] public int sizeY;
 
+    [Header("Skyland")]
+    public bool isSkyland;
+
     [Header("Point Distribution")]
     [Range(4, 6000)] public int pointDensity;
 
@@ -20,10 +23,16 @@ public class TerrainGenerator : MonoBehaviour
     public AnimationCurve heightCurve;
     [Header("Seed")]
     public float Seed;
+    [Header("Terrain Color Gradient")]
+    public Gradient colorGradient;
 
     private Polygon polygon;
     private TriangleNet.Mesh mesh;
     private UnityEngine.Mesh terrainMesh;
+    private Color[] colors;
+    private MeshFilter filter;
+    private MeshRenderer meshRenderer;
+    
 
     // Start is called before the first frame update
     public void Start()
@@ -33,13 +42,14 @@ public class TerrainGenerator : MonoBehaviour
 
     public void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Initiate();
-        }
+        
     }
     public void Initiate()
     {
+        filter = GetComponent<MeshFilter>();
+        meshRenderer = GetComponent<MeshRenderer>();
+
+
         polygon = new Polygon();
         terrainMesh = new UnityEngine.Mesh();
 
@@ -70,7 +80,7 @@ public class TerrainGenerator : MonoBehaviour
         List<int> triangles = new List<int>();
         List<float> heights = new List<float>();
 
-        Noise noise = new Noise();
+        
 
         IEnumerator<Triangle> triangleEnum = mesh.Triangles.GetEnumerator();
         
@@ -84,12 +94,18 @@ public class TerrainGenerator : MonoBehaviour
 
             Triangle currentTriangle = triangleEnum.Current;
 
-            Debug.Log("Going to noise generation loop");
+            //Debug.Log("Going to noise generation loop");
             for (int j = 0; j < 3; j++)
             {
-                heights.Add(noise.GenerateNoise((float)currentTriangle.vertices[j].x, (float)currentTriangle.vertices[j].y, Seed)*200);
+                heights.Add(heightCurve.Evaluate(Noise.GenerateNoise((float)currentTriangle.vertices[j].x, (float)currentTriangle.vertices[j].y, Seed))*200);
             }
-            Debug.Log("Heights" + heights[0] + " " +heights[1] + " " +heights[2]);
+            /*
+            if (isSkyland)
+            {
+                float h = height
+            }*/
+
+            //Debug.Log("Heights" + heights[0] + " " +heights[1] + " " +heights[2]);
             Vector3 v0 = new Vector3((float)currentTriangle.vertices[2].x, (float) heights[2], (float)currentTriangle.vertices[2].y);
             Vector3 v1 = new Vector3((float)currentTriangle.vertices[1].x, (float) heights[1], (float)currentTriangle.vertices[1].y);
             Vector3 v2 = new Vector3((float)currentTriangle.vertices[0].x, (float) heights[0], (float)currentTriangle.vertices[0].y);
@@ -113,17 +129,62 @@ public class TerrainGenerator : MonoBehaviour
             }
            
         }
+        //Colors
+        
+        List<Color> ColorList = new List<Color>();
+
+
+        IEnumerator<Triangle> triangleEnum2 = mesh.Triangles.GetEnumerator();
+        for (int i = 0; i < mesh.Triangles.Count; i++)
+        {
+            if (!triangleEnum2.MoveNext())
+            {
+                break;
+            }
+
+            Triangle current = triangleEnum2.Current;
+
+            float avgHeight = 0;
+
+            for (int j = 0; j < 3; j++)
+            {
+                avgHeight += Noise.GenerateNoise((float)current.vertices[j].x, (float)current.vertices[j].y, Seed);
+            }
+
+            avgHeight /= 3;
+
+            for (int k = 0; k < 3; k++)
+            {
+                ColorList.Add(colorGradient.Evaluate(avgHeight));
+            }
+        }
+
+
         terrainMesh.vertices = verticies.ToArray();
         terrainMesh.normals = normals.ToArray();
         terrainMesh.triangles = triangles.ToArray();
         terrainMesh.uv = uvs.ToArray();
+        terrainMesh.colors = new Color[verticies.Count];
+        terrainMesh.colors = ColorList.ToArray();
+        //meshRenderer.material.color = Color.green;
+        
+        
 
+        
+        
+        
         foreach (Vector3 meshVertex in terrainMesh.vertices)
         {
             polygon.Add(new TriangleNet.Geometry.Vertex(meshVertex.x, meshVertex.z));
         }
-        UnityEngine.MeshFilter filter = GetComponent<MeshFilter>();
+
+
         filter.mesh = terrainMesh;
         
+
+        
+        
+
+
     }
 }
