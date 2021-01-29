@@ -12,6 +12,10 @@ public class TerrainGenerator : MonoBehaviour
     [Header("Genral settings")]
     [Range(1, 1000)] public int sizeX;
     [Range(1, 1000)] public int sizeY;
+    [Range(1, 1000)] public int skylandRadius;
+    [Range(1, 1000)] public int skylandExtraEdgePoints;
+    [Range(1, 100)] public int skylandDeclinePrecent;
+
 
     [Header("Skyland")]
     public bool isSkyland;
@@ -21,6 +25,7 @@ public class TerrainGenerator : MonoBehaviour
 
     [Header("Height curve")]
     public AnimationCurve heightCurve;
+    public AnimationCurve skylandDropCurve;
     [Header("Seed")]
     public float Seed;
     [Header("Terrain Color Gradient")]
@@ -32,7 +37,7 @@ public class TerrainGenerator : MonoBehaviour
     private Color[] colors;
     private MeshFilter filter;
     private MeshRenderer meshRenderer;
-    
+
 
     // Start is called before the first frame update
     public void Start()
@@ -42,7 +47,7 @@ public class TerrainGenerator : MonoBehaviour
 
     public void Update()
     {
-        
+
     }
     public void Initiate()
     {
@@ -54,13 +59,35 @@ public class TerrainGenerator : MonoBehaviour
         terrainMesh = new UnityEngine.Mesh();
 
         //Make random points to the mesh
-        for (int i = 0; i < pointDensity; i++)
+        if (!isSkyland)
+            for (int i = 0; i < pointDensity; i++)
+            {
+                var x = Random.Range(.0f, sizeX) - (sizeX / 2);
+                var y = Random.Range(.0f, sizeY) - (sizeY / 2);
+                polygon.Add(new TriangleNet.Geometry.Vertex(x, y));
+            }
+        else if (isSkyland)
         {
-            var x = Random.Range(.0f, sizeX);
-            var y = Random.Range(.0f, sizeY);
-            polygon.Add(new TriangleNet.Geometry.Vertex(x, y));
+            for (int i = 0; i < pointDensity; i++)
+            {
+                float offsetFromCenter = (float)skylandRadius * Mathf.Sqrt(Random.Range(.0f, 1));
+                float randomAngle = Random.Range(.0f, 1) * 2 * Mathf.PI;
+                var x = offsetFromCenter * Mathf.Cos(randomAngle);
+                var y = offsetFromCenter * Mathf.Sin(randomAngle);
+                polygon.Add(new TriangleNet.Geometry.Vertex(x, y));
+            }
+            float angle = 0;
+
+            for (int i = 0; i < skylandExtraEdgePoints; i++)
+            {
+                ;
+                angle += 2 * Mathf.PI / skylandExtraEdgePoints;
+                var x = (float)skylandRadius * Mathf.Cos(angle);
+                var y = (float)skylandRadius * Mathf.Sin(angle);
+                polygon.Add(new TriangleNet.Geometry.Vertex(x, y));
+            }
         }
-         ConstraintOptions constraints = new ConstraintOptions();
+        ConstraintOptions constraints = new ConstraintOptions();
         constraints.ConformingDelaunay = true;
 
         //Put some triangles to the mesh
@@ -69,10 +96,10 @@ public class TerrainGenerator : MonoBehaviour
 
         GenerateMesh();
     }
-    
+
     public void GenerateMesh()
     {
-        
+
         Debug.Log("Starting generate mesh function");
         List<Vector3> verticies = new List<Vector3>();
         List<Vector3> normals = new List<Vector3>();
@@ -80,13 +107,13 @@ public class TerrainGenerator : MonoBehaviour
         List<int> triangles = new List<int>();
         List<float> heights = new List<float>();
 
-        
+
 
         IEnumerator<Triangle> triangleEnum = mesh.Triangles.GetEnumerator();
-        
+
         for (int i = 0; i < mesh.Triangles.Count; i++)
         {
-            
+
             if (!triangleEnum.MoveNext())
             {
                 break;
@@ -95,23 +122,47 @@ public class TerrainGenerator : MonoBehaviour
             Triangle currentTriangle = triangleEnum.Current;
 
             //Debug.Log("Going to noise generation loop");
-            for (int j = 0; j < 3; j++)
+            if (!isSkyland)
             {
-                heights.Add(heightCurve.Evaluate(Noise.GenerateNoise((float)currentTriangle.vertices[j].x, (float)currentTriangle.vertices[j].y, Seed))*200);
+                for (int j = 0; j < 3; j++)
+                {
+                    heights.Add(heightCurve.Evaluate(Noise.GenerateNoise((float)currentTriangle.vertices[j].x, (float)currentTriangle.vertices[j].y, Seed)) * 200);
+                }
             }
-            /*
-            if (isSkyland)
+            else if (isSkyland)
             {
-                float h = height
-            }*/
+                for (int j = 0; j < 3; j++)
+                {
+                    float precentDistanceFromTheEdge = 1 - Mathf.Sqrt(Mathf.Pow((float)currentTriangle.vertices[j].x, 2) + Mathf.Pow((float)currentTriangle.vertices[j].y, 2)) / (float)skylandRadius;
+
+                    if (precentDistanceFromTheEdge > (float)skylandDeclinePrecent / 100)
+                        heights.Add(heightCurve.Evaluate(Noise.GenerateNoise((float)currentTriangle.vertices[j].x, (float)currentTriangle.vertices[j].y, Seed)) * 200);
+
+
+                    else if (precentDistanceFromTheEdge < 0.00001)
+                    {
+                        heights.Add(0);
+                    }
+                    else
+                    {
+                        heights.Add(skylandDropCurve.Evaluate(precentDistanceFromTheEdge * 100 / skylandDeclinePrecent) * heightCurve.Evaluate(Noise.GenerateNoise((float)currentTriangle.vertices[j].x, (float)currentTriangle.vertices[j].y, Seed)) * 200);
+                        Debug.Log("not zero");
+                    }
+
+
+                }
+            }
+
+
+
 
             //Debug.Log("Heights" + heights[0] + " " +heights[1] + " " +heights[2]);
-            Vector3 v0 = new Vector3((float)currentTriangle.vertices[2].x, (float) heights[2], (float)currentTriangle.vertices[2].y);
-            Vector3 v1 = new Vector3((float)currentTriangle.vertices[1].x, (float) heights[1], (float)currentTriangle.vertices[1].y);
-            Vector3 v2 = new Vector3((float)currentTriangle.vertices[0].x, (float) heights[0], (float)currentTriangle.vertices[0].y);
+            Vector3 v0 = new Vector3((float)currentTriangle.vertices[2].x, (float)heights[2], (float)currentTriangle.vertices[2].y);
+            Vector3 v1 = new Vector3((float)currentTriangle.vertices[1].x, (float)heights[1], (float)currentTriangle.vertices[1].y);
+            Vector3 v2 = new Vector3((float)currentTriangle.vertices[0].x, (float)heights[0], (float)currentTriangle.vertices[0].y);
 
             heights.Clear();
-            
+
             triangles.Add(verticies.Count);
             triangles.Add(verticies.Count + 1);
             triangles.Add(verticies.Count + 2);
@@ -121,16 +172,16 @@ public class TerrainGenerator : MonoBehaviour
             verticies.Add(v2);
 
             var normal = Vector3.Cross(v1 - v0, v2 - v0);
-            
-            for(int x = 0; x < 3; x++)
+
+            for (int x = 0; x < 3; x++)
             {
                 normals.Add(normal);
                 uvs.Add(Vector3.zero);
             }
-           
+
         }
         //Colors
-        
+
         List<Color> ColorList = new List<Color>();
 
 
@@ -148,7 +199,7 @@ public class TerrainGenerator : MonoBehaviour
 
             for (int j = 0; j < 3; j++)
             {
-                avgHeight += Noise.GenerateNoise((float)current.vertices[j].x, (float)current.vertices[j].y, Seed);
+                avgHeight += Noise.GenerateNoise((float)current.vertices[j].x, (float)current.vertices[j].y, Seed) + 0.5f;
             }
 
             avgHeight /= 3;
@@ -167,12 +218,12 @@ public class TerrainGenerator : MonoBehaviour
         terrainMesh.colors = new Color[verticies.Count];
         terrainMesh.colors = ColorList.ToArray();
         //meshRenderer.material.color = Color.green;
-        
-        
 
-        
-        
-        
+
+
+
+
+
         foreach (Vector3 meshVertex in terrainMesh.vertices)
         {
             polygon.Add(new TriangleNet.Geometry.Vertex(meshVertex.x, meshVertex.z));
@@ -180,10 +231,10 @@ public class TerrainGenerator : MonoBehaviour
 
 
         filter.mesh = terrainMesh;
-        
 
-        
-        
+
+
+
 
 
     }

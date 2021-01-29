@@ -265,8 +265,8 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
-  field of view: 107.4
+  far clip plane: 2000
+  field of view: 122
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -291,13 +291,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.5735764, y: -0, z: -0, w: 0.8191521}
-  m_LocalPosition: {x: 0, y: 300, z: -283}
+  m_LocalRotation: {x: 0.44775915, y: 0, z: 0, w: 0.8941542}
+  m_LocalPosition: {x: 0, y: 228, z: -634}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1874459119}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 70, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 53.2, y: 0, z: 0}
 --- !u!1 &1514500381
 GameObject:
   m_ObjectHideFlags: 0
@@ -312,7 +312,7 @@ GameObject:
   - component: {fileID: 1514500383}
   - component: {fileID: 1514500382}
   m_Layer: 0
-  m_Name: Plane
+  m_Name: top
   m_TagString: Terrain
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -332,14 +332,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sizeX: 1000
   sizeY: 1000
-  isSkyland: 0
-  pointDensity: 6000
+  skylandRadius: 497
+  skylandExtraEdgePoints: 1000
+  skylandDeclinePrecent: 13
+  isSkyland: 1
+  pointDensity: 2530
   heightCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: -0.05
-      value: 0.092015825
+      time: -0.50713676
+      value: -0.0020607552
       inSlope: -0.041481454
       outSlope: -0.041481454
       tangentMode: 0
@@ -347,8 +350,8 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 1
     - serializedVersion: 3
-      time: 0.19842622
-      value: 0.1031203
+      time: -0.25871056
+      value: 0.011010076
       inSlope: 0.14954619
       outSlope: 0.14954619
       tangentMode: 0
@@ -356,8 +359,8 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.840354
     - serializedVersion: 3
-      time: 0.5125791
-      value: 0.26401654
+      time: 0.055442303
+      value: 0.20039752
       inSlope: 0.1442735
       outSlope: 0.1442735
       tangentMode: 0
@@ -365,8 +368,8 @@ MonoBehaviour:
       inWeight: 0.39371634
       outWeight: 0.5558394
     - serializedVersion: 3
-      time: 0.7834233
-      value: 0.61521274
+      time: 0.32628652
+      value: 0.6137829
       inSlope: 0.6849521
       outSlope: 0.6849521
       tangentMode: 0
@@ -374,8 +377,8 @@ MonoBehaviour:
       inWeight: 1
       outWeight: 1
     - serializedVersion: 3
-      time: 0.8557957
-      value: 0.8000279
+      time: 0.3986589
+      value: 0.83132476
       inSlope: 1.5634638
       outSlope: 1.5634638
       tangentMode: 0
@@ -383,8 +386,8 @@ MonoBehaviour:
       inWeight: 0.84867656
       outWeight: 0.11405504
     - serializedVersion: 3
-      time: 1
-      value: 1
+      time: 0.5435765
+      value: 1.5015777
       inSlope: 0.86381143
       outSlope: 0.86381143
       tangentMode: 0
@@ -394,7 +397,31 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  Seed: 0
+  skylandDropCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  Seed: 12353
   colorGradient:
     serializedVersion: 2
     key0: {r: 0, g: 0.067028075, b: 0.5566038, a: 1}
@@ -495,7 +522,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1514500381}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.317339, y: -0.65, z: -0.55390596}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -512,7 +539,7 @@ GameObject:
   - component: {fileID: 1874459119}
   - component: {fileID: 1874459120}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: CameraCenterObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -526,7 +553,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1874459118}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 500, y: 150, z: 500}
+  m_LocalPosition: {x: 0, y: 150, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 963194228}
